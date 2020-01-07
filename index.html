@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+    <title>City and Stars</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="style.css">
+    <script src="two.js"></script> <!-- credit https://two.js.org/ -->
+    <script src="tinycolor.js"></script> <!-- credit https://github.com/bgrins/TinyColor -->
+    <script src="jquery.js"></script> <!-- credit https://jquery.com/ -->
+    <script src="star.js"></script>
+    <script src="sky.js"></script>
+    <script src="mouselight.js"></script>
+    <script src="footstep.js"></script>
+    <script src="city.js"></script>
+  </head>  
+  
+  <body>
+    <script>
+      
+      var two = new Two({
+          fullscreen: true,
+          autostart: true
+        }).appendTo(document.body);
+      
+      var paused = false;
+     
+      var sky = new Sky(two);
+      var mouseLight = new Light(two);
+      var city = new City(two.width / 2, two.height / 2, two, sky, mouseLight);
+  
+      var mouse = new Two.Vector(two.width / 2, two.height / 2);
+     
+          var title = two.makeText('City and Stars', two.width / 2, two.height / 2 - 150);
+          title.family = 'monospace';
+          title.size = 32;
+          var sub = two.makeText('By Liam Johansson', two.width / 2, two.height / 2 - 120);
+          sub.family = 'monospace';
+          sub.size = 20;
+          var text = two.makeGroup().add(title, sub);
+          text.fill = '#FFFFFF';
+      var i = 0;
+      var setup = function(frameCount) {
+        if (city.back.opacity < 0.9) {
+          city.back.opacity += 0.01, city.front.opacity += 0.01;
+        }
+        if (text != undefined && text.opacity > 0) {
+          text.opacity -= 0.015;
+        }
+        else {
+          two.remove(text);
+        }
+        if (frameCount % 30 == 0) {
+            if (i < 2) {
+              city.addBlock('right', frameCount);
+              city.addBlock('left', frameCount);
+                i++;
+            }
+            else
+               two.unbind('update', setup);
+          }
+      }
+      
+      var after = function() {
+          if (text.opacity < 0.9) {
+            text.opacity += 0.01;
+          }
+      }
+      
+      two.bind('update', setup);
+      two.bind('update', function(frameCount) {
+        sky.update();
+        if (!city.hasEnded) {
+          mouseLight.update(mouse.x, mouse.y, two);
+          city.update(frameCount, paused);
+        }
+        else {
+          // sky.restore();
+          two.remove(mouseLight.aura);
+          // var d1 = two.makeText('There are no more clear nights in many cites and their surroundings.', 
+          //                       two.width / 2, two.height / 2 - 10);
+          // var d2 = two.makeText('Consider development and its impact on the night sky.',
+          //                                two.width / 2, two.height / 2 + 10);
+          // d1.fill = d2.fill = '#FFFFFF';
+          // d1.family = d2.family = 'monospace';
+          // d1.size = d2.size = 16;
+          // text = two.makeGroup().add(d1, d2);
+          // text.opacity = 0.05;
+          // if (text.opacity < 0.9) {
+          //   text.opacity += 0.005;
+          // }
+        }
+      });
+      
+      
+       $(window)
+         .bind('mousemove', function(e) {
+            mouse.set(e.clientX, e.clientY);
+          })
+        .bind('click', function() {
+           paused = !paused;
+         })
+	    
+    </script>
+  </body>
+</html>
